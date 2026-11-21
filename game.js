@@ -1568,7 +1568,7 @@ function renderCook() {
         <img src="${icon(cook.dish, 64)}" style="width:64px;image-rendering:pixelated">
         <div style="font-weight:900;margin-top:6px">${cook.dish === 'kanin' ? 'Hanguin ang kanin kapag nasa BERDE ang guhit!' : 'Pakuluan… Hanguin kapag nasa BERDE ang guhit!'}</div>
       </div>
-      <div style="margin-top:26px" class="row"><div class="disp" style="font-size:30px;width:110px">⏱ <span id="hbTime">00.00</span></div>
+      <div style="margin-top:26px" class="row"><div class="disp" style="font-size:30px;flex:none;width:150px;white-space:nowrap;overflow:hidden">⏱ <span id="hbTime" style="display:inline-block;width:92px;text-align:left;font-variant-numeric:tabular-nums">00.00</span></div>
       <div class="heatbar" style="flex:1"><div class="fill" id="hbFill"></div><div class="zone" style="left:${cook.zone[0] * 100}%;width:${(cook.zone[1] - cook.zone[0]) * 100}%"></div><div class="needle" id="hbNeedle"></div></div></div>
       <div style="text-align:center;margin-top:30px"><button class="btn yellow" id="hango" style="font-size:40px;padding:10px 60px">HANGO!</button></div>
       <div class="muted" style="text-align:center;margin-top:14px;font-weight:900">Kung maghihintay hanggang dulo… masusunog!</div>`;
