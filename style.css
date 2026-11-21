@@ -138,3 +138,9 @@ canvas.pix{image-rendering:pixelated;display:block}
 .evCard p{margin:0 0 12px;font-weight:900;font-size:20px;color:#5a3a1a}
 /* let lists inside pop-ups scroll with a finger */
 [style*="overflow:auto"]{touch-action:pan-y;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+/* cooking timer: every digit sits in its own fixed-width slot so it never wiggles */
+.tmrBox{font-size:30px;flex:none;width:150px;white-space:nowrap;overflow:hidden;display:flex;align-items:center;contain:layout}
+.tmIcon{display:inline-block;width:40px;flex:none;text-align:center;font-size:26px;line-height:1}
+.tmr{display:inline-flex;flex:none}
+.tmr .dg{display:inline-block;width:19px;text-align:center}
+.tmr .dp{display:inline-block;width:9px;text-align:center}

@@ -1521,7 +1521,7 @@ function openCook() {
     if (cook.phase === 'heat') {
       cook.prog += dt / cook.time;
       const bar = $('#hbFill'), nd = $('#hbNeedle'), tm = $('#hbTime');
-      if (bar) { bar.style.width = Math.min(100, cook.prog * 100) + '%'; nd.style.left = `calc(${Math.min(100, cook.prog * 100)}% - 2px)`; tm.textContent = (cook.prog * cook.time).toFixed(2).padStart(5, '0'); }
+      if (bar) { bar.style.width = Math.min(100, cook.prog * 100) + '%'; nd.style.left = `calc(${Math.min(100, cook.prog * 100)}% - 2px)`; const s = (cook.prog * cook.time).toFixed(2).padStart(5, '0'); for (let i = 0; i < 5 && i < tm.children.length; i++) if (tm.children[i].textContent !== s[i]) tm.children[i].textContent = s[i]; }
       if (cook.prog >= 1) finishCook(true);
     }
     drawStove(sc, tt);
@@ -1568,7 +1568,7 @@ function renderCook() {
         <img src="${icon(cook.dish, 64)}" style="width:64px;image-rendering:pixelated">
         <div style="font-weight:900;margin-top:6px">${cook.dish === 'kanin' ? 'Hanguin ang kanin kapag nasa BERDE ang guhit!' : 'Pakuluan… Hanguin kapag nasa BERDE ang guhit!'}</div>
       </div>
-      <div style="margin-top:26px" class="row"><div class="disp" style="font-size:30px;flex:none;width:150px;white-space:nowrap;overflow:hidden">⏱ <span id="hbTime" style="display:inline-block;width:92px;text-align:left;font-variant-numeric:tabular-nums">00.00</span></div>
+      <div style="margin-top:26px" class="row"><div class="disp tmrBox"><span class="tmIcon">⏱</span><span id="hbTime" class="tmr"><span class="dg">0</span><span class="dg">0</span><span class="dp">.</span><span class="dg">0</span><span class="dg">0</span></span></div>
       <div class="heatbar" style="flex:1"><div class="fill" id="hbFill"></div><div class="zone" style="left:${cook.zone[0] * 100}%;width:${(cook.zone[1] - cook.zone[0]) * 100}%"></div><div class="needle" id="hbNeedle"></div></div></div>
       <div style="text-align:center;margin-top:30px"><button class="btn yellow" id="hango" style="font-size:40px;padding:10px 60px">HANGO!</button></div>
       <div class="muted" style="text-align:center;margin-top:14px;font-weight:900">Kung maghihintay hanggang dulo… masusunog!</div>`;
