@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="tl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#4a2810">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Kain Tayo!">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<title>Hoy Buseng, Kain Tayo! – Larong Karinderya</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="wrap"><div id="game">
+  <canvas id="scene" width="1280" height="720"></canvas>
+
+  <!-- HUD -->
+  <div id="hud" class="hidden">
+    <div class="pill"><div class="coin"></div><span id="hMoney">₱0</span></div>
+    <div class="pill"><span class="star">★</span><span id="hLvl">Antas 1</span><div class="xpbar"><div id="hXp"></div></div></div>
+    <div class="pill" title="Reputasyon"><span style="color:#ff7a9a">♥</span><span id="hRep">0</span></div>
+    <div style="flex:1"></div>
+    <div class="pill hidden" id="hEvent"></div>
+    <div class="pill"><div id="hSun" class="sun"></div><div style="line-height:1"><div id="hDay" style="font-size:18px">Araw 1</div><div id="hTime" style="font-size:22px">6:00 AM</div></div></div>
+    <button class="pill pbtn" id="bPause" title="Pahinga">❚❚</button>
+  </div>
+
+  <!-- Toolbar -->
+  <div id="toolbar" class="hidden">
+    <button class="tool" id="bCook"><img id="icCook" alt="">Kusina</button>
+    <button class="tool" id="bMarket"><img id="icMarket" alt="">Palengke</button>
+    <button class="tool" id="bUp"><img id="icUp" alt="">Pagandahin</button>
+    <div id="invStrip"></div>
+    <button class="btn green" id="bOpen">BUKSAN ANG<br>KARINDERYA</button>
+  </div>
+
+  <!-- Title menu -->
+  <div id="menu">
+    <div id="logo">
+      <div class="b">BUSENG</div><br>
+      <div class="k">KAIN TAYO!</div><br>
+      <div class="r">LARONG KARINDERYA</div>
+    </div>
+    <div id="menuBtns">
+      <button class="btn" id="mNew">BAGONG LARO</button>
+      <button class="btn" id="mCont">ITULOY</button>
+      <button class="btn" id="mSet">AYOS NG LARO</button>
+      <button class="btn" id="mQuit">UMALIS</button>
+    </div>
+    <div id="ver">Buseng Kain Tayo! v1.0</div>
+    <button class="fsBtn" id="mFull" title="Palakihin ang screen">⛶</button>
+  </div>
+
+  <div id="modalRoot"></div>
+  <div id="toast"></div>
+</div></div>
+
+<!-- Shown on phones held upright -->
+<div id="rotate">
+  <div class="phone"></div>
+  <div class="rt">I-rotate ang phone mo</div>
+  <div class="rs">Laruin nang pahiga (landscape) para sa mas magandang view!</div>
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>

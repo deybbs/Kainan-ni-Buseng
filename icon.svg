@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" shape-rendering="crispEdges">
+  <rect width="512" height="512" rx="96" fill="#f5a623"/>
+  <rect x="24" y="24" width="464" height="464" rx="80" fill="#ffcc55"/>
+  <!-- roof -->
+  <rect x="96" y="70" width="320" height="40" fill="#c0392b"/>
+  <rect x="76" y="110" width="360" height="30" fill="#d0453a"/>
+  <!-- steam -->
+  <rect x="200" y="170" width="20" height="40" fill="#fff" opacity=".8"/>
+  <rect x="246" y="155" width="20" height="50" fill="#fff" opacity=".8"/>
+  <rect x="292" y="170" width="20" height="40" fill="#fff" opacity=".8"/>
+  <!-- rice -->
+  <rect x="150" y="230" width="212" height="40" fill="#ffffff"/>
+  <rect x="170" y="210" width="172" height="24" fill="#ffffff"/>
+  <!-- bowl -->
+  <rect x="120" y="270" width="272" height="30" fill="#c0392b"/>
+  <rect x="140" y="300" width="232" height="40" fill="#a82312"/>
+  <rect x="176" y="340" width="160" height="30" fill="#8a1c0e"/>
+  <rect x="216" y="370" width="80" height="20" fill="#5a1008"/>
+  <!-- spoon & fork -->
+  <rect x="80" y="200" width="16" height="190" fill="#8a5a32"/>
+  <rect x="68" y="170" width="40" height="44" fill="#c9ced6"/>
+  <rect x="416" y="200" width="16" height="190" fill="#8a5a32"/>
+  <rect x="404" y="166" width="8" height="40" fill="#c9ced6"/>
+  <rect x="420" y="166" width="8" height="40" fill="#c9ced6"/>
+  <rect x="436" y="166" width="8" height="40" fill="#c9ced6"/>
+  <rect x="404" y="200" width="40" height="10" fill="#c9ced6"/>
+  <text x="256" y="462" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="58" text-anchor="middle" fill="#5a2a0a">KAIN TAYO!</text>
+</svg>
