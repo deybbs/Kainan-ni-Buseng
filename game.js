@@ -234,7 +234,7 @@ function unlockAudio() {
 addEventListener('contextmenu', e => e.preventDefault());
 document.addEventListener('gesturestart', e => e.preventDefault());
 let lastTouchEnd = 0;
-document.addEventListener('touchend', e => { const now = Date.now(); if (now - lastTouchEnd < 300 && e.target.tagName !== 'BUTTON') e.preventDefault(); lastTouchEnd = now; }, { passive: false });
+document.addEventListener('touchend', e => { const now = Date.now(); if (now - lastTouchEnd < 300 && e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT') e.preventDefault(); lastTouchEnd = now; }, { passive: false });
 function toggleFullscreen() {
   const d = document, el = d.documentElement;
   const isFull = d.fullscreenElement || d.webkitFullscreenElement;
@@ -378,6 +378,7 @@ function newState() {
     inv: { pork: 1.2, chicken: 0, fish: 0, gulay: 2, rice: 2, rekado: 3 },
     trays: {}, up: { table: 0, ricecooker: 0, ref: 0, decor: 0, stove: 0, sign: 0, plates: 0, sink: 0 },
     event: null, prices: {}, ayuda: 0, bestDay: 0,
+    char: defaultChar(),
   };
   TRAY_ORDER.forEach(k => s.trays[k] = { n: 0, q: 0 });
   rollPrices(s);
@@ -1244,6 +1245,181 @@ addEventListener('keydown', e => {
 addEventListener('keyup', e => { if (KEYMAP[e.key]) keys[KEYMAP[e.key]] = false; });
 addEventListener('blur', () => { for (const k in keys) keys[k] = false; });
 
+/* ---------------- CHARACTER CUSTOMIZATION ---------------- */
+const CC = {
+  skins:  ['#f6d2b0', '#f1c27d', '#e0ac69', '#c68642', '#8d5524'],
+  hairs:  ['#1b1b1b', '#3d2314', '#6b3d1f', '#c9a24a', '#c9c9d4', '#b8336a', '#2f5fb0'],
+  shirts: ['#e74c3c', '#3498db', '#2ecc71', '#f1c40f', '#9b59b6', '#e67e22', '#ffffff', '#ff7eb6', '#1abc9c', '#34495e'],
+  pants:  ['#34495e', '#2c3e50', '#5d4037', '#1f3a5f', '#7f8c8d', '#c0392b'],
+  hairStyle: [['maikli', 'Maikli'], ['mahaba', 'Mahaba'], ['tusok', 'Tusok-tusok'], ['ponytail', 'Ponytail'], ['pusod', 'Pusod'], ['kulot', 'Kulot'], ['bangs', 'May Bangs'], ['kalbo', 'Kalbo']],
+  eyes:   [['normal', 'Normal'], ['masaya', 'Masaya'], ['malaki', 'Malaki'], ['singkit', 'Singkit'], ['kindat', 'Kumikindat']],
+  mouth:  [['ngiti', 'Ngiti'], ['tawa', 'Tawa'], ['seryoso', 'Seryoso'], ['dila', 'Labas-dila']],
+  top:    [['tshirt', 'Kamiseta'], ['polo', 'Polo'], ['guhit', 'Guhit-guhit'], ['barong', 'Barong'], ['sando', 'Sando']],
+  bottom: [['pantalon', 'Pantalon'], ['shorts', 'Maikling Pantalon'], ['palda', 'Palda']],
+  hat:    [['chef', 'Kusinero'], ['cap', 'Gora'], ['bandana', 'Bandana'], ['salakot', 'Salakot'], ['wala', 'Wala']],
+  extras: [['salamin', 'Salamin'], ['bigote', 'Bigote'], ['balbas', 'Balbas'], ['hikaw', 'Hikaw'], ['pisngi', 'Mapulang Pisngi']],
+};
+const NAME_MAX = 12;
+function defaultChar() {
+  return { name: 'Buseng', skin: '#e0ac69', hairStyle: 'maikli', hair: '#1b1b1b', eyes: 'normal', mouth: 'ngiti', extras: [],
+    top: 'tshirt', shirt: '#e74c3c', bottom: 'pantalon', pants: '#34495e', hat: 'chef', apron: true };
+}
+function randomChar(name) {
+  const p = a => pick(a), pk = a => pick(a)[0];
+  return { name, skin: p(CC.skins), hairStyle: pk(CC.hairStyle), hair: p(CC.hairs), eyes: pk(CC.eyes), mouth: pk(CC.mouth),
+    extras: CC.extras.filter(() => Math.random() < .2).map(e => e[0]), top: pk(CC.top), shirt: p(CC.shirts),
+    bottom: pk(CC.bottom), pants: p(CC.pants), hat: pk(CC.hat), apron: Math.random() < .7 };
+}
+/* Draws the player's customised character. (x,y) = feet center */
+function drawHero(c, x, y, ch, o = {}) {
+  const u = o.u || 3, f = o.frame || 0, skin = ch.skin, hair = ch.hair, ex = ch.extras || [];
+  const r = (a, b, w, h, col) => { c.fillStyle = col; c.fillRect(Math.round(x + a * u), Math.round(y + b * u), Math.max(1, Math.round(w * u)), Math.max(1, Math.round(h * u))); };
+  const frame4 = (a, b, w, h, col) => { const t = 1 / 3; r(a, b, w, t, col); r(a, b + h - t, w, t, col); r(a, b, t, h, col); r(a + w - t, b, t, h, col); };
+  c.fillStyle = 'rgba(0,0,0,.18)'; c.fillRect(Math.round(x - 6 * u), Math.round(y - u), 12 * u, 2 * u);
+  // ---- legs
+  const l1 = f === 1 ? -1 : 0, l2 = f === 2 ? -1 : 0;
+  if (ch.bottom === 'palda') {
+    r(-3, -5 + l1, 2, 5, skin); r(1, -5 + l2, 2, 5, skin);
+    r(-3, -1 + l1, 2, 1, '#2a2a2a'); r(1, -1 + l2, 2, 1, '#2a2a2a');
+  } else {
+    r(-4, -6 + l1, 3, 6, ch.pants); r(1, -6 + l2, 3, 6, ch.pants);
+    if (ch.bottom === 'shorts') { r(-4, -3 + l1, 3, 2, skin); r(1, -3 + l2, 3, 2, skin); }
+    r(-4, -1 + l1, 3, 1, '#2a2a2a'); r(1, -1 + l2, 3, 1, '#2a2a2a');
+  }
+  const by = -6 + (o.bob ? Math.round(o.bob) : 0);
+  // ---- body / clothes
+  const sc = ch.top === 'barong' ? '#f3ead2' : ch.shirt;
+  r(-5, by - 9, 10, 9, sc);
+  if (ch.top === 'guhit') for (let i = 0; i < 4; i++) r(-5, by - 8 + i * 2, 10, 1, ch.shirt === '#ffffff' ? '#3498db' : 'rgba(255,255,255,.5)');
+  if (ch.top === 'polo') { r(-3, by - 9, 2, 1, '#ffffff'); r(1, by - 9, 2, 1, '#ffffff'); r(0, by - 8, 1 / 3, 1 / 3, 'rgba(0,0,0,.4)'); r(0, by - 6.5, 1 / 3, 1 / 3, 'rgba(0,0,0,.4)'); }
+  if (ch.top === 'barong') {
+    r(-2, by - 9, 4, 1, '#e3d4b0'); r(-1, by - 8, 2, 6, '#e3d4b0');
+    for (let i = 0; i < 3; i++) { r(-3.5, by - 7 + i * 2, 1 / 3, 1 / 3, '#c9b48a'); r(3.2, by - 7 + i * 2, 1 / 3, 1 / 3, '#c9b48a'); r(-0.2, by - 7.5 + i * 2, 1 / 3, 1 / 3, '#b8a070'); }
+  }
+  if (ch.top === 'sando') { r(-5, by - 9, 2, 1, skin); r(3, by - 9, 2, 1, skin); }
+  r(-5, by - 9, 10, 1 / 3, 'rgba(255,255,255,.2)');
+  const sleeve = ch.top === 'sando' ? skin : sc;
+  r(-7, by - 9, 2, 7, sleeve); r(5, by - 9, 2, 7, sleeve);
+  r(-7, by - 2, 2, 2, skin); r(5, by - 2, 2, 2, skin);
+  if (ch.bottom === 'palda') { r(-5, -7, 10, 1, ch.pants); r(-6, -6, 12, 2, ch.pants); r(-6, -4.5, 12, 1 / 3, 'rgba(0,0,0,.25)'); }
+  if (ch.apron) { r(-4, by - 7, 8, 7, '#fdfdfd'); r(-4, by - 7, 8, 1 / 3, '#ddd'); r(-1, by - 5, 2, 1, '#eee'); }
+  // ---- head
+  const hy = by - 17;
+  if (ch.hairStyle === 'mahaba') r(-5, hy, 10, 11, hair);          // long hair behind the face
+  if (ch.hairStyle === 'kulot') r(-6, hy - 1, 12, 9, hair);
+  if (ch.hairStyle === 'ponytail') { r(4, hy + 1, 2, 2, hair); r(5, hy + 2, 2, 6, hair); r(5, hy + 2, 2, 1 / 2, '#e53935'); }
+  r(-4, hy, 8, 8, skin);
+  r(-5, hy + 3, 1, 2, skin); r(4, hy + 3, 1, 2, skin);              // ears
+  if (ex.includes('balbas')) { r(-4, hy + 5, 8, 3, hair); r(-2, hy + 6, 4, 1, skin); }
+  // eyes
+  const ink = '#222';
+  switch (ch.eyes) {
+    case 'masaya': r(-3, hy + 4.4, 2, 2 / 3, ink); r(1, hy + 4.4, 2, 2 / 3, ink); r(-3, hy + 4.4, 1 / 3, 1, ink); r(-1.33, hy + 4.4, 1 / 3, 1, ink); r(1, hy + 4.4, 1 / 3, 1, ink); r(2.67, hy + 4.4, 1 / 3, 1, ink); break;
+    case 'malaki': r(-3, hy + 3, 2, 3, '#fff'); r(1, hy + 3, 2, 3, '#fff'); r(-2.5, hy + 3.7, 1.2, 2, ink); r(1.5, hy + 3.7, 1.2, 2, ink); r(-2.3, hy + 3.8, 1 / 3, 1 / 3, '#fff'); r(1.7, hy + 3.8, 1 / 3, 1 / 3, '#fff'); break;
+    case 'singkit': r(-3, hy + 4.5, 2, 1 / 2, ink); r(1, hy + 4.5, 2, 1 / 2, ink); break;
+    case 'kindat': r(-2, hy + 4, 1, 2, ink); r(1, hy + 4.7, 2, 1 / 2, ink); break;
+    default: r(-2, hy + 4, 1, 2, ink); r(1, hy + 4, 1, 2, ink);
+  }
+  // mouth
+  switch (ch.mouth) {
+    case 'tawa': r(-2, hy + 6, 4, 1.5, '#7a2a2a'); r(-1.5, hy + 6, 3, 1 / 2, '#fff'); r(-1, hy + 7, 2, 1 / 2, '#ff8a9a'); break;
+    case 'seryoso': r(-1.5, hy + 6.3, 3, 1 / 2, '#8a4a3a'); break;
+    case 'dila': r(-2, hy + 6, 4, 1 / 2, '#8a3a2a'); r(-0.5, hy + 6.5, 1.3, 1, '#ff7a9a'); break;
+    default: r(-1, hy + 6.3, 2, 2 / 3, '#b0504a'); r(-2, hy + 5.8, 1, 2 / 3, '#b0504a'); r(1, hy + 5.8, 1, 2 / 3, '#b0504a');
+  }
+  const blushA = ex.includes('pisngi') ? .7 : .3;
+  r(-4, hy + 5.3, 1.3, 2 / 3, `rgba(255,110,120,${blushA})`); r(2.7, hy + 5.3, 1.3, 2 / 3, `rgba(255,110,120,${blushA})`);
+  if (ex.includes('bigote')) { r(-2.5, hy + 5.4, 2.3, 2 / 3, hair); r(0.2, hy + 5.4, 2.3, 2 / 3, hair); }
+  if (ex.includes('salamin')) {
+    r(-3.7, hy + 3.3, 2.6, 2.4, 'rgba(190,225,255,.35)'); r(1.1, hy + 3.3, 2.6, 2.4, 'rgba(190,225,255,.35)');
+    frame4(-3.7, hy + 3.3, 2.6, 2.4, '#2a2a2a'); frame4(1.1, hy + 3.3, 2.6, 2.4, '#2a2a2a'); r(-1.1, hy + 4, 2.2, 1 / 3, '#2a2a2a');
+  }
+  if (ex.includes('hikaw')) { r(-5, hy + 5, 2 / 3, 2 / 3, '#ffd23f'); r(4.33, hy + 5, 2 / 3, 2 / 3, '#ffd23f'); }
+  // front hair
+  switch (ch.hairStyle) {
+    case 'maikli': case 'ponytail': r(-4, hy - 1, 8, 3, hair); r(-5, hy, 1, 4, hair); r(4, hy, 1, 4, hair); break;
+    case 'mahaba': r(-4, hy - 1, 8, 3, hair); r(-5, hy, 1, 10, hair); r(4, hy, 1, 10, hair); break;
+    case 'tusok': r(-4, hy - 1, 8, 2, hair); r(-5, hy, 1, 3, hair); r(4, hy, 1, 3, hair);
+      r(-4, hy - 2, 1, 1, hair); r(-2, hy - 3, 1, 2, hair); r(0, hy - 2, 1, 1, hair); r(1, hy - 3, 1, 2, hair); r(3, hy - 2, 1, 1, hair); break;
+    case 'pusod': r(-4, hy - 1, 8, 3, hair); r(-5, hy, 1, 4, hair); r(4, hy, 1, 4, hair); r(-2, hy - 4, 4, 3, hair); r(-2, hy - 1.5, 4, 1 / 2, '#e53935'); break;
+    case 'kulot': r(-6, hy - 3, 12, 4, hair); r(-6, hy, 2, 6, hair); r(4, hy, 2, 6, hair);
+      for (const [a, b] of [[-5, -2], [-2, -3], [1, -2], [4, -2], [-5, 2], [4.5, 3]]) r(a, hy + b, 2 / 3, 2 / 3, 'rgba(255,255,255,.15)'); break;
+    case 'bangs': r(-5, hy - 1, 10, 4, hair); r(-5, hy, 1, 7, hair); r(4, hy, 1, 7, hair); break;
+    case 'kalbo': r(-2, hy + 0.7, 2, 2 / 3, 'rgba(255,255,255,.3)'); break;
+  }
+  // hats
+  switch (ch.hat) {
+    case 'chef': r(-4, hy - 3, 8, 3, '#fff'); r(-5, hy - 6, 10, 3, '#fff'); r(-4, hy - 3, 8, 1 / 3, '#ddd'); break;
+    case 'cap': r(-5, hy - 2, 10, 3, ch.shirt === '#ffffff' ? '#e53935' : ch.shirt); r(-5, hy + 1, 10, 2 / 3, 'rgba(0,0,0,.3)'); r(-1, hy - 2.5, 2, 2 / 3, '#fff'); break;
+    case 'bandana': r(-5, hy, 10, 2, '#d32f2f'); r(-3, hy + 0.5, 2 / 3, 2 / 3, '#fff'); r(1, hy + 1, 2 / 3, 2 / 3, '#fff'); r(5, hy + 1, 2, 2, '#d32f2f'); break;
+    case 'salakot': r(-8, hy - 1, 16, 2, '#d9b25c'); r(-6, hy - 3, 12, 2, '#e8c56e'); r(-3, hy - 5, 6, 2, '#f0d080'); r(-1, hy - 6, 2, 1, '#c09040'); break;
+  }
+}
+function escAttr(s) { return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function openCreator(first, onDone) {
+  const ch = JSON.parse(JSON.stringify(S.char || defaultChar()));
+  if (!Array.isArray(ch.extras)) ch.extras = [];
+  const ov = openModal(`<div class="panel cc">
+    ${first ? '' : '<button class="closex">✕</button>'}
+    <div class="ccL">
+      <div class="ptitle" style="font-size:26px">Ang Iyong Karakter</div>
+      <canvas id="ccCv" class="pix card" width="300" height="350"></canvas>
+      <div id="ccNameShow" class="disp"></div>
+      <button class="btn small yellow" id="ccRand">Kahit Ano!</button>
+    </div>
+    <div class="ccRwrap">
+      <div class="ccR" id="ccR" style="overflow:auto"></div>
+      <button class="btn green" id="ccOk">${first ? 'SIMULAN ANG LARO!' : 'I-SAVE'}</button>
+    </div></div>`, !first);
+  const labelOf = (key) => (CC[key].find(o => o[0] === ch[key]) || CC[key][0])[1];
+  const swatchRow = (label, key, cols) => `<div class="ccRow"><span class="ccL1">${label}</span><div class="sw">${cols.map(col =>
+    `<button class="swc${ch[key] === col ? ' on' : ''}" data-k="${key}" data-v="${col}" style="background:${col}" aria-label="${label}"></button>`).join('')}</div></div>`;
+  const cycleRow = (label, key) => `<div class="ccRow"><span class="ccL1">${label}</span><div class="cyc"><button data-cyc="${key}" data-d="-1">◀</button><b>${labelOf(key)}</b><button data-cyc="${key}" data-d="1">▶</button></div></div>`;
+  const render = () => {
+    $('#ccR').innerHTML =
+      `<div class="ccRow"><span class="ccL1">Pangalan</span><input id="ccNm" maxlength="${NAME_MAX}" autocomplete="off" spellcheck="false" value="${escAttr(ch.name)}" placeholder="Pangalan mo"></div>` +
+      `<div class="ccSec">MUKHA</div>` +
+      swatchRow('Kulay ng Balat', 'skin', CC.skins) + cycleRow('Mata', 'eyes') + cycleRow('Bibig', 'mouth') +
+      `<div class="ccRow"><span class="ccL1">Dagdag</span><div class="chips">${CC.extras.map(([id, lb]) => `<button class="chipT${ch.extras.includes(id) ? ' on' : ''}" data-ex="${id}">${lb}</button>`).join('')}</div></div>` +
+      `<div class="ccSec">BUHOK</div>` +
+      cycleRow('Estilo', 'hairStyle') + swatchRow('Kulay', 'hair', CC.hairs) +
+      `<div class="ccSec">DAMIT</div>` +
+      cycleRow('Pang-itaas', 'top') + (ch.top === 'barong' ? '' : swatchRow('Kulay', 'shirt', CC.shirts)) +
+      cycleRow('Pang-ibaba', 'bottom') + swatchRow('Kulay', 'pants', CC.pants) +
+      cycleRow('Sombrero', 'hat') +
+      `<div class="ccRow"><span class="ccL1">Apron</span><div class="chips"><button class="chipT${ch.apron ? ' on' : ''}" data-apron="1">${ch.apron ? 'Suot' : 'Wala'}</button></div></div>`;
+    $('#ccNm').addEventListener('input', e => { ch.name = e.target.value.slice(0, NAME_MAX); showName(); });
+  };
+  const showName = () => { $('#ccNameShow').textContent = (ch.name.trim() || 'Buseng'); };
+  $('#ccR').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    SFX.click();
+    if (b.dataset.k) ch[b.dataset.k] = b.dataset.v;
+    else if (b.dataset.cyc) { const list = CC[b.dataset.cyc], i = list.findIndex(o => o[0] === ch[b.dataset.cyc]); ch[b.dataset.cyc] = list[(i + +b.dataset.d + list.length) % list.length][0]; }
+    else if (b.dataset.ex) { const id = b.dataset.ex; ch.extras = ch.extras.includes(id) ? ch.extras.filter(x => x !== id) : [...ch.extras, id]; }
+    else if (b.dataset.apron) ch.apron = !ch.apron;
+    const sc = $('#ccR').scrollTop; render(); $('#ccR').scrollTop = sc;
+  });
+  $('#ccRand').onclick = () => { SFX.plop(); Object.assign(ch, randomChar(ch.name)); const sc = $('#ccR').scrollTop; render(); $('#ccR').scrollTop = sc; };
+  $('#ccOk').onclick = () => {
+    SFX.ding();
+    ch.name = (ch.name || '').replace(/[<>]/g, '').trim().slice(0, NAME_MAX) || 'Buseng';
+    S.char = ch;
+    if (!first && G.phase === 'prep') save();
+    closeModal(); onDone && onDone();
+  };
+  render(); showName();
+  const pc = $('#ccCv').getContext('2d'); pc.imageSmoothingEnabled = false;
+  let tt = 0;
+  G.modalDraw = dt => {
+    tt += dt;
+    pc.fillStyle = '#f5e2b8'; pc.fillRect(0, 0, 300, 350);
+    for (let yy = 0; yy < 350; yy += 25) for (let xx = (yy / 25) % 2 ? 0 : 25; xx < 300; xx += 50) { pc.fillStyle = '#ead3a2'; pc.fillRect(xx, yy, 25, 25); }
+    pc.fillStyle = 'rgba(255,214,64,.55)'; blob(pc, 150, 330, 70, 12, pc.fillStyle, 3);
+    drawHero(pc, 150, 330, ch, { u: 9, bob: Math.sin(tt * 3) * .5 });
+  };
+}
+
 /* ---------------- PLAYER (Buseng) ---------------- */
 const SINK = { x: 1150, y: 280, w: 126, h: 70 };
 const SINK_STAND = { x: 1116, y: 336 };
@@ -1406,7 +1582,7 @@ function drawPlayer(c, t) {
   const P = G.P, moving = P.path.length || keys.up || keys.down || keys.left || keys.right;
   const frame = moving ? (Math.floor(P.walk / 14) % 2) + 1 : 0;
   c.fillStyle = 'rgba(255,214,64,.55)'; blob(c, P.x, P.y, 22, 6, c.fillStyle, 2);
-  drawPerson(c, P.x, P.y, { shirt: '#e74c3c', hair: '#1b1b1b', skin: '#e0ac69', pants: '#34495e', apron: true, hat: 'chef', frame, bob: P.washing ? Math.sin(t * 16) : 0 });
+  drawHero(c, P.x, P.y, S.char, { frame, bob: P.washing ? Math.sin(t * 16) : 0 });
   // dirty stack in hands
   for (let i = 0; i < P.carry; i++) {
     const py = P.y - 30 - i * 6;
@@ -1415,7 +1591,7 @@ function drawPlayer(c, t) {
   }
   if (P.carry) { c.fillStyle = '#cfe8f5'; c.fillRect(P.x + 14, P.y - 44, 7, 12); c.fillStyle = '#fff'; c.fillRect(P.x + 14, P.y - 44, 7, 2); }
   for (let i = 0; i < P.rice; i++) { const ry = P.y - 34 - i * 9; c.fillStyle = '#c0392b'; c.fillRect(P.x - 26, ry, 12, 6); blob(c, P.x - 20, ry - 1, 6, 4, '#ffffff', 2); }
-  txt(c, 'BUSENG', P.x, P.y + 12, 12, '#ffe680', 'center', '#3a1f0b', 3);
+  txt(c, S.char.name.toUpperCase(), P.x, P.y + 12, 12, '#ffe680', 'center', '#3a1f0b', 3);
 }
 function drawDirty(c, d, t) {
   const s = d.seat, px = s.tx + s.side * 24, py = s.ty - 38;
@@ -1821,6 +1997,7 @@ function openPause() {
     <div style="display:flex;flex-direction:column;gap:14px;align-items:center">
       <button class="btn green" id="pR" style="width:260px">Ituloy</button>
       <button class="btn" id="pS" style="width:260px">Ayos ng Laro</button>
+      <button class="btn" id="pC" style="width:260px">Ayusin ang Itsura</button>
       <button class="btn yellow" id="pF" style="width:260px">Palakihin ang Screen</button>
       <button class="btn red" id="pM" style="width:260px">Bumalik sa Simula</button>
     </div>
@@ -1828,6 +2005,7 @@ function openPause() {
   ov.querySelector('#pR').onclick = () => { SFX.click(); closeModal(); };
   ov.querySelector('#pS').onclick = () => { SFX.click(); openSettings(); };
   ov.querySelector('#pF').onclick = () => { SFX.click(); toggleFullscreen(); };
+  ov.querySelector('#pC').onclick = () => { SFX.click(); openCreator(false, () => {}); };
   ov.querySelector('#pM').onclick = () => {
     SFX.click();
     if (G.phase === 'prep') { save(); toMenu(); }
@@ -2020,13 +2198,18 @@ function enterGame() {
   $('#icCook').src = icon('cook', 36); $('#icMarket').src = icon('market', 36); $('#icUp').src = icon('upgrade', 36);
 }
 function newGame() {
-  S = newState(); enterGame(); startDay();
+  S = newState();
+  openCreator(true, startNewGame);
+}
+function startNewGame() {
+  enterGame(); startDay();
+  const nm = S.char.name;
   dialog([
-    'Apo Buseng! Maligayang pagdating! Ikaw na ang bahala sa karinderya natin simula ngayon.',
+    'Apo ' + nm + '! Maligayang pagdating! Ikaw na ang bahala sa karinderya natin simula ngayon.',
     'Una, pumunta ka sa PALENGKE para bumili ng sangkap. May konting baboy, gulay at bigas pa tayo dito.',
     'Pagkatapos, magluto ka sa KUSINA. Ilagay ang sangkap sa tamang pagkakasunod, at HANGUIN sa tamang oras!',
     'Huwag kalimutang MAGSAING ng kanin — walang Pilipinong kumakain nang walang kanin!',
-    'Ikaw si BUSENG! Sa phone: i-TAP lang ang sahig para maglakad, at i-tap ang kumakain, mesa o lababo para kumilos. Sa computer: WASD o arrow keys, at E o Space.',
+    'Ikaw si ' + nm.toUpperCase() + '! Sa phone: i-TAP lang ang sahig para maglakad, at i-tap ang kumakain, mesa o lababo para kumilos. Sa computer: WASD o arrow keys, at E o Space.',
     'Kapag handa na, pindutin ang BUKSAN. I-click ang kumakain sa turo-turo para pagsilbihan sila. Kain tayo!',
     'Kapag tapos kumain ang suki, may maiiwang PLATO at BASO sa mesa. I-click ang maduming mesa para ligpitin, tapos dalhin sa LABABO para hugasan!',
     'Tandaan: limitado ang malinis na plato, at hindi makakaupo ang kumakain sa maduming mesa. Laging maglinis, apo!',
@@ -2038,6 +2221,7 @@ $('#mCont').onclick = () => {
   SFX.click(); const d = loadSave(); if (!d) return;
   S = Object.assign(newState(), d);
   S.up = Object.assign(newState().up, d.up || {});
+  S.char = Object.assign(defaultChar(), d.char || {}); if (!Array.isArray(S.char.extras)) S.char.extras = [];
   TRAY_ORDER.forEach(k => { if (!S.trays[k]) S.trays[k] = { n: 0, q: 0 }; });
   enterGame(); startDay();
   dialog(['Maligayang pagbabalik, apo! Araw ' + S.day + ' na. Handa ka na bang magluto?'], () => { if (S.event) eventPopup(S.event, () => {}); });
